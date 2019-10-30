@@ -55,7 +55,7 @@ if !isServer {
 if let pPort = dropOpts.first {
     if let iPort = UInt16(pPort) {
         portNumber = iPort
-        guard !(1...1024 ~= portNumber) || NSUserName() == "root" else {
+        guard !isServer || !(1...1024 ~= portNumber) || NSUserName() == "root" else {
             die("Port number (\(portNumber)) requires root to use.\n\n\(usage)")
         }
     } else {

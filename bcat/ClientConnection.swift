@@ -64,7 +64,7 @@ class ClientConnection {
         while true {
             guard var command = readLine(strippingNewline: true) else {
                 print("^D received, shutting down client")
-                self.stop(error: nil)
+                self.sendEndOfStream()
                 exit(EXIT_SUCCESS)
             }
             switch command {
@@ -93,6 +93,14 @@ class ClientConnection {
             }
             print("Client sent \(data).")
         }))
+    }
+    func sendEndOfStream() {
+        connection.send(content: nil, contentContext: .defaultStream, isComplete: true, completion: .contentProcessed({ error in
+            if let error = error {
+                self.connectionDidFail(error: error)
+            }
+        }))
+        self.stop(error: nil)
     }
     func connectionDidFail(error: Error) {
         print("Client connection failed with error: \(error.localizedDescription)")
