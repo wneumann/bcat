@@ -71,6 +71,8 @@ if isServer {
     try! server.startListner()
 } else {
     print("Starting as client, connecting to server at \(serverAddr):\(portNumber)")
+    let client = Client(options: ClientOptions(port: portNumber, serverAddr: serverAddr))
+    client.start()
 }
 
 

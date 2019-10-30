@@ -83,7 +83,7 @@ class ServerConnection {
     }
     
     func connectionDidEnd() {
-        print("\tConnection \(id) ended.")
+        print("\tConnection \(id) ended, client closed.")
         stop(error: nil)
     }
     func connectionDidFail(error: Error) {

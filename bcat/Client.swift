@@ -27,11 +27,12 @@ class Client{
         print("Starting client; connecting to \(host):\(port)")
         connection.didStopCallback = didStopCallback(error:)
         connection.start()
+        connection.run()
     }
-    func stop() {
-        connection.stop()
+    private func stop() {
+        connection.stop(error: nil)
     }
-    func send(data: Data) {
+    private func send(data: Data) {
         connection.send(data: data)
     }
     

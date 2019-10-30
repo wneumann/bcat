@@ -59,6 +59,24 @@ class ClientConnection {
         setupReceive()
         connection.start(queue: queue)
     }
+    func run() {
+        print("Echo client running: type \"QUIT\" to exit")
+        while true {
+            guard var command = readLine(strippingNewline: true) else {
+                print("^D received, shutting down client")
+                self.stop(error: nil)
+                exit(EXIT_SUCCESS)
+            }
+            switch command {
+            case "CRLF": command = "\r\n"
+            case "RETURN": command = "\n"
+            case "QUIT": self.stop(error: nil)
+            default:
+                break
+            }
+            self.send(data: command.data(using: .utf8)!)
+        }
+    }
     func stop(error: Error?) {
         connection.stateUpdateHandler = nil
         connection.cancel()
@@ -68,7 +86,13 @@ class ClientConnection {
         }
     }
     func send(data: Data) {
-        
+        connection.send(content: data, completion: .contentProcessed({ error in
+            if let error = error {
+                self.connectionDidFail(error: error)
+                return
+            }
+            print("Client sent \(data).")
+        }))
     }
     func connectionDidFail(error: Error) {
         print("Client connection failed with error: \(error.localizedDescription)")

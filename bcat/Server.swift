@@ -36,7 +36,7 @@ class Server {
     func stateDidChange(to newState: NWListener.State) {
         switch newState {
         case .ready:
-            print("Server ready for connections")
+            print("Server \(listner) ready for connections")
         case .failed(let error):
             print("Server failure; \(error.localizedDescription)")
             exit(EXIT_FAILURE)
