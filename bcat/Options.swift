@@ -12,10 +12,10 @@ protocol  Options {
     var port: UInt16 { get }
 }
 
-struct ClientOptions: Options {
+struct ServerOptions: Options {
     var port: UInt16
 }
-struct ServerOptions: Options {
+struct ClientOptions: Options {
     var port: UInt16
     let serverAddr: String
 }

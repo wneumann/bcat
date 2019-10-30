@@ -47,17 +47,28 @@ class Server {
         }
     }
     
-    func didAcceptConnection(from connection: NWConnection) {
+    private func didAcceptConnection(from connection: NWConnection) {
         let conn = ServerConnection(connection: connection)
         self.connectionsByID[conn.id] = conn
         conn.didStopCallback = { _ in self.connectionDidStop(conn) }
         conn.start()
-        conn.send(data: "¡Hola, connexion! You are #\(conn.id).".data(using: .utf8)!)
+        conn.send(data: "¡Hola, connexion! You are #\(conn.id).\n".data(using: .utf8)!)
         print("Server accepted connection #\(conn.id)")
     }
     
-    func connectionDidStop(_ connection: ServerConnection) {
+    private func connectionDidStop(_ connection: ServerConnection) {
         self.connectionsByID.removeValue(forKey: connection.id)
         print("Server closed connection #\(connection.id)")
+    }
+    
+    private func stop() {
+        self.listner.stateUpdateHandler = nil
+        self.listner.newConnectionHandler = nil
+        self.listner.cancel()
+        for connection in self.connectionsByID.values {
+            connection.didStopCallback = nil
+            connection.stop()
+        }
+        self.connectionsByID.removeAll()
     }
 }

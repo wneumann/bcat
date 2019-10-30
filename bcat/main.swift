@@ -11,6 +11,11 @@
 
 import Foundation
 
+guard #available(macOS 10.14, *) else {
+    FileHandle.standardError.write("Requires macOS 10.14 or newer".data(using: .utf8)!)
+    exit(EXIT_FAILURE)
+}
+
 // MARK: Defaults
 var isServer = false
 var portNumber: UInt16 = 4444
@@ -57,8 +62,13 @@ if let pPort = dropOpts.first {
         die("invalid port number (\(pPort))\n\n\(usage)")
     }
 }
+
+// MARK: Functionality
+
 if isServer {
     print("Starting as server, listening on port \(portNumber)")
+    let server = Server(options: ServerOptions(port: portNumber))
+    try! server.startListner()
 } else {
     print("Starting as client, connecting to server at \(serverAddr):\(portNumber)")
 }
