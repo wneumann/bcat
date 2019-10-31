@@ -15,21 +15,23 @@ class ServerConnection {
     let id: Int
     var didStopCallback: ((Error?) -> ())? = nil
     let connection: NWConnection
+    let log: Logger
     
-    init(connection: NWConnection) {
+    init(connection: NWConnection, logger: Logger) {
         id = ServerConnection.nextID
         ServerConnection.nextID += 1
         self.connection = connection
+        self.log = logger
     }
     
     func start() {
-        print("\tConnection \(id) will start")
+        log.log("\tConnection \(id) will start", level: .info)
         connection.stateUpdateHandler = self.stateDidChange(to:)
         setupReceive()
         connection.start(queue: .main)
     }
     func stop() {
-        print("\tConnection \(id) will stop.")
+        log.log("\tConnection \(id) will stop.", level: .info)
     }
     private func stop(error: Error?) {
         connection.stateUpdateHandler = nil
@@ -45,7 +47,7 @@ class ServerConnection {
                 self.connectionDidFail(error: error)
                 return
             }
-            print("\tConnection \(self.id) sent \(data)")
+            self.log.log("\tConnection \(self.id) sent \(data)", level: .info)
         }))
     }
     
@@ -54,11 +56,11 @@ class ServerConnection {
         case .waiting(let error):
             connectionDidFail(error: error)
         case .ready:
-            print("\tConnetion \(id) is ready")
+            log.log("\tConnetion \(id) is ready", level: .info)
         case .failed(let error):
             connectionDidFail(error: error)
         case .cancelled:
-            print("\tConnection \(id) cancelled, shutting down")
+            log.log("\tConnection \(id) cancelled, shutting down", level: .info)
         default:
             break
         }
@@ -69,7 +71,7 @@ class ServerConnection {
             if let data = data, !data.isEmpty {
                 let message = String(data: data, encoding: .utf8) ?? "--not utf8 text--"
                 let msg = String(message.reversed().drop(while: { $0 == "\n" }).reversed())
-                print("\tConnection \(self.id) received \(data) [\(msg)]")
+                self.log.log("\tConnection \(self.id) received \(data) [\(msg)]", level: .info)
                 self.send(data: data)
             }
             if isComplete {
@@ -83,11 +85,11 @@ class ServerConnection {
     }
     
     func connectionDidEnd() {
-        print("\tConnection \(id) ended, client closed.")
+        log.log("\tConnection \(id) ended, client closed.", level: .warning)
         stop(error: nil)
     }
     func connectionDidFail(error: Error) {
-        print("\tConnection \(id) failed with error \(error.localizedDescription).")
+        log.elog("\tConnection \(id) failed with error \(error.localizedDescription).", level: .error)
         stop(error: error)
     }
 }

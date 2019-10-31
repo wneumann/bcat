@@ -18,16 +18,23 @@ import Network
 class Server {
     let port: NWEndpoint.Port
     let listner: NWListener
+    let log: Logger
     
     private var connectionsByID: [Int: ServerConnection] = [:]
     
-    init(options: ServerOptions) {
+    init(options: ServerOptions, logger: Logger) {
         self.port = NWEndpoint.Port(rawValue: options.port)!
-        self.listner = try! NWListener(using: NWParameters.tcp, on: self.port)
+        let params = NWParameters.tcp.copy()
+        if let ipV = options.ipVersion {
+            (params.defaultProtocolStack.internetProtocol as! NWProtocolIP.Options).version = ipV == 4 ? .v4 : .v6
+        }
+        //print("listener has IPOption.version \((params.defaultProtocolStack.internetProtocol as! NWProtocolIP.Options).version)")
+        self.listner = try! NWListener(using: params, on: self.port)
+        log = logger
     }
     
     func startListner() throws {
-        print("Starting server")
+        log.log("Starting server", level: .info)
         listner.stateUpdateHandler = self.stateDidChange(to:)
         listner.newConnectionHandler = self.didAcceptConnection(from:)
         listner.start(queue: .main)
@@ -36,29 +43,29 @@ class Server {
     func stateDidChange(to newState: NWListener.State) {
         switch newState {
         case .ready:
-            print("Server \(listner) ready for connections")
+            log.log("Server \(listner) ready for connections", level: .info)
         case .failed(let error):
             print("Server failure; \(error.localizedDescription)")
             exit(EXIT_FAILURE)
         case .cancelled:
-            print("Server cancelled, shutting down")
+            log.elog("Server cancelled, shutting down", level: .warning)
         default:
             break
         }
     }
     
     private func didAcceptConnection(from connection: NWConnection) {
-        let conn = ServerConnection(connection: connection)
+        let conn = ServerConnection(connection: connection, logger: log)
         self.connectionsByID[conn.id] = conn
         conn.didStopCallback = { _ in self.connectionDidStop(conn) }
         conn.start()
         conn.send(data: "¡Hola, connexion! You are #\(conn.id).\n".data(using: .utf8)!)
-        print("Server accepted connection #\(conn.id)")
+        log.log("Server accepted connection #\(conn.id)", level: .warning)
     }
     
     private func connectionDidStop(_ connection: ServerConnection) {
         self.connectionsByID.removeValue(forKey: connection.id)
-        print("Server closed connection #\(connection.id)")
+        log.log("Server closed connection #\(connection.id)", level: .warning)
     }
     
     private func stop() {

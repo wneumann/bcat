@@ -13,6 +13,7 @@
 		6145A77D2369BBBE006D62B7 /* ServerConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6145A77C2369BBBE006D62B7 /* ServerConnection.swift */; };
 		6145A77F2369BC3E006D62B7 /* Options.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6145A77E2369BC3E006D62B7 /* Options.swift */; };
 		6145A7812369D7BD006D62B7 /* ClientConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6145A7802369D7BD006D62B7 /* ClientConnection.swift */; };
+		6145A785236B1ADF006D62B7 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6145A784236B1ADF006D62B7 /* Logger.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,6 +36,7 @@
 		6145A77C2369BBBE006D62B7 /* ServerConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerConnection.swift; sourceTree = "<group>"; };
 		6145A77E2369BC3E006D62B7 /* Options.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Options.swift; sourceTree = "<group>"; };
 		6145A7802369D7BD006D62B7 /* ClientConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientConnection.swift; sourceTree = "<group>"; };
+		6145A784236B1ADF006D62B7 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				6145A7712369B3A1006D62B7 /* main.swift */,
+				6145A784236B1ADF006D62B7 /* Logger.swift */,
 				6145A7782369BB16006D62B7 /* Server.swift */,
 				6145A77C2369BBBE006D62B7 /* ServerConnection.swift */,
 				6145A77A2369BB1F006D62B7 /* Client.swift */,
@@ -139,6 +142,7 @@
 				6145A77D2369BBBE006D62B7 /* ServerConnection.swift in Sources */,
 				6145A7792369BB16006D62B7 /* Server.swift in Sources */,
 				6145A7722369B3A1006D62B7 /* main.swift in Sources */,
+				6145A785236B1ADF006D62B7 /* Logger.swift in Sources */,
 				6145A77F2369BC3E006D62B7 /* Options.swift in Sources */,
 				6145A77B2369BB1F006D62B7 /* Client.swift in Sources */,
 			);

@@ -16,9 +16,11 @@ class ClientConnection {
     let connection: NWConnection
     var didStopCallback: ((Error?) -> ())? = nil
     let queue = DispatchQueue(label: "clientQ")
+    let log: Logger
     
-    init(connection: NWConnection) {
+    init(connection: NWConnection, logger: Logger) {
         self.connection = connection
+        self.log = logger
     }
     
 
@@ -29,10 +31,11 @@ class ClientConnection {
         case .waiting(let error), .failed(let error):
             connectionDidFail(error: error)
         case .ready:
-            print("Client is ready")
+            log.log("Client is ready", level: .info)
         case .cancelled:
-            print("--Cancelling client connection")
+            log.log("--Cancelling client connection", level: .warning)
         default:
+            log.log("I unno? State: \(newState)", level: .info)
             break
         }
     }
@@ -41,7 +44,8 @@ class ClientConnection {
             if let data = data, !data.isEmpty {
                 let message = String(data: data, encoding: .utf8) ?? "--not utf8 text--"
                 let msg = String(message.reversed().drop(while: { $0 == "\n" }).reversed())
-                print("Client connectionm received \(data) [\(msg)]")
+                self.log.log("Client connection received \(data) [\(msg)]", level: .info)
+                print("echo: \(msg)")
             }
             if isComplete {
                 self.connectionDidEnd()
@@ -54,7 +58,7 @@ class ClientConnection {
     }
     
     func start() {
-        print("Starting client connection")
+        log.log("Starting client connection", level: .warning)
         connection.stateUpdateHandler = stateDidChange(to:)
         setupReceive()
         connection.start(queue: queue)
@@ -63,13 +67,13 @@ class ClientConnection {
         print("Echo client running: type \"QUIT\" to exit")
         while true {
             guard var command = readLine(strippingNewline: true) else {
-                print("^D received, shutting down client")
+                log.log("^D received, shutting down client", level: .warning)
                 self.sendEndOfStream()
                 exit(EXIT_SUCCESS)
             }
             switch command {
             case "CRLF": command = "\r\n"
-            case "RETURN": command = "\n"
+            case "LF": command = "\n"
             case "QUIT": self.stop(error: nil)
             default:
                 break
@@ -91,7 +95,7 @@ class ClientConnection {
                 self.connectionDidFail(error: error)
                 return
             }
-            print("Client sent \(data).")
+            self.log.log("Client sent \(data).", level: .info)
         }))
     }
     func sendEndOfStream() {
@@ -103,11 +107,11 @@ class ClientConnection {
         self.stop(error: nil)
     }
     func connectionDidFail(error: Error) {
-        print("Client connection failed with error: \(error.localizedDescription)")
+        log.elog("Client connection failed with error: \(error.localizedDescription)", level: .error)
         self.stop(error: error)
     }
     func connectionDidEnd() {
-        print("Client connection ended normally")
+        log.log("Client connection ended normally", level: .warning)
         self.stop(error: nil)
 
     }
